@@ -1,5 +1,7 @@
+paramiko>=2.5.0
 unidecode
 zeep
 xmlsig>=0.1.2
 pyOpenSSL
 pycryptodome
+xmlsec
