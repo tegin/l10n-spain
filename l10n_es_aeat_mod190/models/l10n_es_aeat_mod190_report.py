@@ -140,7 +140,7 @@ class L10nEsAeatMod190Report(models.Model):
                             tax_line.res_id == report.id
                         ):
                             rde += line.credit - line.debit
-                        if not rp.discapacidad or rp.discapacidad == '0':
+                        if not rp.disability or rp.disability == '0':
                             values['percepciones_dinerarias'] += pd
                             values['retenciones_dinerarias'] += rd
                             values['percepciones_en_especie'] += pde - rde
@@ -164,11 +164,11 @@ class L10nEsAeatMod190Report(models.Model):
                         registros += 1
                         if values:
                             line_obj.create(values)
-            report._calculate_amount(registros)
+            report._compute_amount(registros)
             report.calculado = True
         return res
 
-    def _calculate_amount(self, registros):
+    def _compute_amount(self, registros):
         percepciones = 0.0
         retenciones = 0.0
         if self.registro_manual:
@@ -206,7 +206,8 @@ class L10nEsAeatMod190Report(models.Model):
         self.casilla_03 = retenciones
 
     def _get_line_mod190_vals(self, rp, key_id, subkey_id):
-        codigo_provincia = rp.state_id.aeat_code
+        codigo_provincia = self.SPANISH_STATES.get(
+            rp.state_id.code, False)
         if not codigo_provincia:
             exceptions.UserError(
                 _('The state is not defined in the partner, %s') % rp.name)
@@ -230,53 +231,55 @@ class L10nEsAeatMod190Report(models.Model):
             'ingresos_a_cuenta_efectuados_incap': 0,
             'ingresos_a_cuenta_repercutidos_incap': 0,
         }
-        if key_id.ad_required + subkey_id.ad_required >= 2:
+        if key_id.additional_data_required + subkey_id.additional_data_required >= 2:
             vals.update({
-                'a_nacimiento': rp.a_nacimiento,
-                'discapacidad': rp.discapacidad,
-                'movilidad_geografica': rp.movilidad_geografica,
-                'representante_legal_vat': rp.representante_legal_vat,
-                'situacion_familiar': rp.situacion_familiar,
-                'nif_conyuge': rp.nif_conyuge,
-                'contrato_o_relacion': rp.contrato_o_relacion,
-                'hijos_y_descendientes_m': rp.hijos_y_descendientes_m,
-                'hijos_y_descendientes_m_entero':
-                    rp.hijos_y_descendientes_m_entero,
-                'hijos_y_descendientes': rp.hijos_y_descendientes_m,
-                'hijos_y_descendientes_entero': rp.hijos_y_descendientes_entero,
-                'computo_primeros_hijos_1': rp.computo_primeros_hijos_1,
-                'computo_primeros_hijos_2': rp.computo_primeros_hijos_2,
-                'computo_primeros_hijos_3': rp.computo_primeros_hijos_3,
-                'hijos_y_desc_discapacidad_33': rp.hijos_y_desc_discapacidad_33,
-                'hijos_y_desc_discapacidad_entero_33':
-                    rp.hijos_y_desc_discapacidad_entero_33,
-                'hijos_y_desc_discapacidad_mr': rp.hijos_y_desc_discapacidad_mr,
-                'hijos_y_desc_discapacidad_entero_mr':
-                    rp.hijos_y_desc_discapacidad_entero_mr,
-                'hijos_y_desc_discapacidad_66': rp.hijos_y_desc_discapacidad_66,
-                'hijos_y_desc_discapacidad_entero_66':
-                    rp.hijos_y_desc_discapacidad_entero_66,
-                'ascendientes': rp.ascendientes,
-                'ascendientes_entero': rp.ascendientes_entero,
-                'ascendientes_m75': rp.ascendientes_m75,
-                'ascendientes_entero_m75': rp.ascendientes_entero_m75,
-                'ascendientes_discapacidad_33': rp.ascendientes_discapacidad_33,
-                'ascendientes_discapacidad_entero_33':
-                    rp.ascendientes_discapacidad_entero_33,
-                'ascendientes_discapacidad_mr': rp.ascendientes_discapacidad_mr,
-                'ascendientes_discapacidad_entero_mr':
-                    rp.ascendientes_discapacidad_entero_mr,
-                'ascendientes_discapacidad_66': rp.ascendientes_discapacidad_66,
-                'ascendientes_discapacidad_entero_66':
-                    rp.ascendientes_discapacidad_entero_66,
+                'birth_year': rp.birth_year,
+                'disability': rp.disability,
+                'geographical_mobility': rp.geographical_mobility,
+                'legal_representative_vat': rp.legal_representative_vat,
+                'family_situation': rp.family_situation,
+                'spouse_vat': rp.spouse_vat,
+                'relation_kind': rp.relation_kind,
+                'descendants_less_3_years': rp.descendants_less_3_years,
+                'descendants_less_3_years_integer':
+                    rp.descendants_less_3_years_integer,
+                'descendants': rp.descendants,
+                'descendants_integer': rp.descendants_integer,
+                'calculation_rule_first_childs_1': rp.calculation_rule_first_childs_1,
+                'calculation_rule_first_childs_2': rp.calculation_rule_first_childs_2,
+                'calculation_rule_first_childs_3': rp.calculation_rule_first_childs_3,
+                'descendants_disability_33': rp.descendants_disability_33,
+                'descendants_disability_33_integer':
+                    rp.descendants_disability_33_integer,
+                'descendants_disability': rp.descendants_disability,
+                'descendants_disability_integer':
+                    rp.descendants_disability_integer,
+                'descendants_disability_66': rp.descendants_disability_66,
+                'descendants_disability_66_integer':
+                    rp.descendants_disability_66_integer,
+                'ancestors': rp.ancestors,
+                'ancestors_integer': rp.ancestors_integer,
+                'ancestors_older_75': rp.ancestors_older_75,
+                'ancestors_older_75_integer': rp.ancestors_older_75_integer,
+                'ancestors_disability_33': rp.ancestors_disability_33,
+                'ancestors_disability_33_integer':
+                    rp.ancestors_disability_33_integer,
+                'ancestors_disability': rp.ancestors_disability,
+                'ancestors_disability_integer':
+                    rp.ancestors_disability_integer,
+                'ancestors_disability_66': rp.ancestors_disability_66,
+                'ancestors_disability_66_integer':
+                    rp.ancestors_disability_66_integer,
             })
         return vals
 
 
 class L10nEsAeatMod190ReportLine(models.Model):
     _name = 'l10n.es.aeat.mod190.report.line'
+    _description = "Line for AEAT report Mod 190"
+    _inherit = 'l10n.es.mod190.additional.data.mixin'
 
-    @api.depends('partner_vat', 'a_nacimiento',
+    @api.depends('partner_vat', 'birth_year',
                  'codigo_provincia', 'aeat_perception_key_id', 'partner_id')
     def _compute_partner_record_ok(self):
         """Comprobamos que los campos estén introducidos dependiendo de las
@@ -296,18 +299,12 @@ class L10nEsAeatMod190ReportLine(models.Model):
         help='Checked if partner record is OK')
     partner_id = fields.Many2one(
         comodel_name='res.partner', string='Partner', required=True)
-    partner_vat = fields.Char(string='NIF', size=15)
-    representante_legal_vat = fields.Char(
+    partner_vat = fields.Char(string='VAT', size=15)
+    legal_representative_vat = fields.Char(
+        oldname="representante_legal_vat",
         string="L. R. VAT", size=9)
-    aeat_perception_key_id = fields.Many2one(
-        comodel_name='l10n.es.aeat.report.perception.key',
-        oldname='clave_percepcion',
-        string='Perception key', required=True)
-    aeat_perception_subkey_id = fields.Many2one(
-        comodel_name='l10n.es.aeat.report.perception.subkey',
-        oldname='subclave',
-        string='Perception subkey')
-    ejercicio_devengo = fields.Char(
+    accrual_exercise = fields.Char(
+        oldname="ejercicio_devengo",
         string='year', size=4)
     ceuta_melilla = fields.Char(
         string='Ceuta or Melilla', size=1)
@@ -341,38 +338,6 @@ class L10nEsAeatMod190ReportLine(models.Model):
         string="State ISO code", size=2,
         help='''''')
 
-    # DATOS ADICIONALES (solo en las claves A, B.01, B.03, C, E.01 y E.02).
-
-    a_nacimiento = fields.Char(string='Year of birth', size=4)
-    situacion_familiar = fields.Selection(
-        selection=[
-            ('1', '1 - Single, widowed, divorced or separated with children '
-                  'under 18 or incapacitated'),
-            ('2', '2 - Married and not legally separated and your spouse has '
-                  'no annual income above the amount referred to'),
-            ('3', '3 - Other.')],
-        string='Family situation')
-    nif_conyuge = fields.Char(
-        string='VAT of the spouse', size=15)
-    discapacidad = fields.Selection([
-        ('0',
-         '0 - No disability or degree of disability less than 33 percent.'),
-        ('1', '1 - Degree of disability greater than 33 percent and less than '
-              '66 percent.'),
-        ('2', '2 - Degree of disability greater than 33 percent and less than '
-              '66 percent, and reduced mobility.'),
-        ('3', '3 - Degree of disability equal to or greater than 65%.')],
-        string='Disability')
-
-    contrato_o_relacion = fields.Selection([
-        ('1', '1 - Contract or relationship of a general nature'),
-        ('2', '2 - Contract or ratio less than a year'),
-        ('3', '3 - Contract or special employment relationship of a dependent '
-              'nature'),
-        ('4', '4 - Sporadic relationship of manual workers')],
-        string='Contract or relationship', size=1)
-    movilidad_geografica = fields.Selection([
-        ('0', 'NO'), ('1', 'SI')], string='Geographical mobility')
     reduccion_aplicable = fields.Float(string='Applicable reduction')
     gastos_deducibles = fields.Float(string='Deductible expenses')
     pensiones_compensatorias = fields.Float(string='Compensatory pensions')
@@ -385,122 +350,67 @@ class L10nEsAeatMod190ReportLine(models.Model):
                   'aplicación la reducción del tipo de retención.')],
         string='Comunicación préstamos vivienda habitual')
 
-    hijos_y_descendientes_m = fields.Integer(string='Under 3 years')
-    hijos_y_descendientes_m_entero = fields.Integer(string='Entirely')
-    hijos_y_descendientes = fields.Integer(string='Rest')
-    hijos_y_descendientes_entero = fields.Integer(string='Entirely')
-
-    hijos_y_desc_discapacidad_mr = fields.Integer(
-        string='Descendants')
-    hijos_y_desc_discapacidad_entero_mr = fields.Integer(
-        string='Descendants, computed entirely')
-    hijos_y_desc_discapacidad_33 = fields.Integer(
-        string='Descendants')
-    hijos_y_desc_discapacidad_entero_33 = fields.Integer(
-        string='Descendants, computed entirely')
-    hijos_y_desc_discapacidad_66 = fields.Integer(
-        string='Descendants')
-    hijos_y_desc_discapacidad_entero_66 = fields.Integer(
-        string='Descendants, computed entirely')
-
-    ascendientes = fields.Integer(string='Ascendents')
-    ascendientes_entero = fields.Integer(
-        string='Ascendents, computed entirely')
-    ascendientes_m75 = fields.Integer(string='Ascendents')
-    ascendientes_entero_m75 = fields.Integer(
-        string='Ascendents, computed entirely')
-
-    ascendientes_discapacidad_33 = fields.Integer(
-        string='Ascendents')
-    ascendientes_discapacidad_entero_33 = fields.Integer(
-        string='Ascendents, computed entirely')
-    ascendientes_discapacidad_mr = fields.Integer(
-        string='Ascendents')
-    ascendientes_discapacidad_entero_mr = fields.Integer(
-        string='Ascendents, computed entirely')
-    ascendientes_discapacidad_66 = fields.Integer(
-        string='Ascendents')
-    ascendientes_discapacidad_entero_66 = fields.Integer(
-        string='Ascendents, computed entirely')
-    computo_primeros_hijos_1 = fields.Integer(
-        string='1')
-    computo_primeros_hijos_2 = fields.Integer(
-        string='2')
-    computo_primeros_hijos_3 = fields.Integer(
-        string='3')
-    ad_required = fields.Integer(
-        compute='_compute_ad_required'
-    )
-
-    @api.depends('aeat_perception_key_id', 'aeat_perception_subkey_id')
-    def _compute_ad_required(self):
-        for record in self:
-            ad_required = record.aeat_perception_key_id.ad_required
-            if record.aeat_perception_subkey_id:
-                ad_required += record.aeat_perception_subkey_id.ad_required
-            record.ad_required = ad_required
-
     @api.onchange('partner_id')
     def onchange_partner_id(self):
         if self.partner_id:
             partner = self.partner_id
             if not partner.state_id:
-                exceptions.UserError(_('Provincia no definida en el cliente'))
+                exceptions.UserError(
+                    _('State not defined on %s') % partner.display_name)
 
-            self.codigo_provincia = partner.state_id.aeat_code
-            if not self.codigo_provincia:
-                self.codigo_provincia = '98'
+            self.codigo_provincia = self.report_id.SPANISH_STATES.get(
+                partner.state_id.code, "98")
 
             self.partner_vat = partner.vat
             # Cargamos valores establecidos en el tercero.
             self.aeat_perception_key_id = partner.aeat_perception_key_id
             self.aeat_perception_subkey_id = partner.aeat_perception_subkey_id
-            self.a_nacimiento = partner.a_nacimiento
-            self.discapacidad = partner.discapacidad
+            self.birth_year = partner.birth_year
+            self.disability = partner.disability
             self.ceuta_melilla = partner.ceuta_melilla
-            self.movilidad_geografica = partner.movilidad_geografica
-            self.representante_legal_vat = partner.representante_legal_vat
-            self.situacion_familiar = partner.situacion_familiar
-            self.nif_conyuge = partner.nif_conyuge
-            self.contrato_o_relacion = partner.contrato_o_relacion
-            self.hijos_y_descendientes_m = partner.hijos_y_descendientes_m
-            self.hijos_y_descendientes_m_entero = \
-                partner.hijos_y_descendientes_m_entero
-            self.hijos_y_descendientes = partner.hijos_y_descendientes
-            self.hijos_y_descendientes_entero = \
-                partner.hijos_y_descendientes_entero
-            self.computo_primeros_hijos_1 = partner.computo_primeros_hijos_1
-            self.computo_primeros_hijos_2 = partner.computo_primeros_hijos_2
-            self.computo_primeros_hijos_3 = partner.computo_primeros_hijos_3
-            self.hijos_y_desc_discapacidad_33 = \
-                partner.hijos_y_desc_discapacidad_33
-            self.hijos_y_desc_discapacidad_entero_33 = \
-                partner.hijos_y_desc_discapacidad_entero_33
-            self.hijos_y_desc_discapacidad_mr = \
-                partner.hijos_y_desc_discapacidad_mr
-            self.hijos_y_desc_discapacidad_entero_mr = \
-                partner.hijos_y_desc_discapacidad_entero_mr
-            self.hijos_y_desc_discapacidad_66 = \
-                partner.hijos_y_desc_discapacidad_66
-            self.hijos_y_desc_discapacidad_entero_66 = \
-                partner.hijos_y_desc_discapacidad_entero_66
-            self.ascendientes = partner.ascendientes
-            self.ascendientes_entero = partner.ascendientes_entero
-            self.ascendientes_m75 = partner.ascendientes_m75
-            self.ascendientes_entero_m75 = partner.ascendientes_entero_m75
+            self.geographical_mobility = partner.geographical_mobility
+            self.legal_representative_vat = partner.legal_representative_vat
+            self.family_situation = partner.family_situation
+            self.spouse_vat = partner.spouse_vat
+            self.relation_kind = partner.relation_kind
+            self.descendants_less_3_years = partner.descendants_less_3_years
+            self.descendants_less_3_years_integer = \
+                partner.descendants_less_3_years_integer
+            self.descendants = partner.descendants
+            self.descendants_integer = \
+                partner.descendants_integer
+            self.calculation_rule_first_childs_1 = partner.calculation_rule_first_childs_1
+            self.calculation_rule_first_childs_2 = partner.calculation_rule_first_childs_2
+            self.calculation_rule_first_childs_3 = partner.calculation_rule_first_childs_3
+            self.descendants_disability_33 = \
+                partner.descendants_disability_33
+            self.descendants_disability_33_integer = \
+                partner.descendants_disability_33_integer
+            self.descendants_disability = \
+                partner.descendants_disability
+            self.descendants_disability_integer = \
+                partner.descendants_disability_integer
+            self.descendants_disability_66 = \
+                partner.descendants_disability_66
+            self.descendants_disability_66_integer = \
+                partner.descendants_disability_66_integer
+            self.ancestors = partner.ancestors
+            self.ancestors_integer = partner.ancestors_integer
+            self.ascendientes_m75 = partner.ancestors_older_75
+            self.ancestors_older_75_integer = partner.ancestors_older_75_integer
 
-            self.ascendientes_discapacidad_33 = \
-                partner.ascendientes_discapacidad_33
-            self.ascendientes_discapacidad_entero_33 = \
-                partner.ascendientes_discapacidad_entero_33
-            self.ascendientes_discapacidad_mr = \
-                partner.ascendientes_discapacidad_mr
-            self.ascendientes_discapacidad_entero_mr = \
-                partner.ascendientes_discapacidad_entero_mr
-            self.ascendientes_discapacidad_66 = \
-                partner.ascendientes_discapacidad_66
-            self.ascendientes_discapacidad_entero_66 = \
-                partner.ascendientes_discapacidad_entero_66
+            self.ancestors_disability_33 = \
+                partner.ancestors_disability_33
+            self.ancestors_disability_33_integer = \
+                partner.ancestors_disability_33_integer
+            self.ancestors_disability = \
+                partner.ancestors_disability
+            self.ancestors_disability = \
+                partner.ancestors_disability_integer
+            self.ancestors_disability_66 = \
+                partner.ancestors_disability_66
+            self.ancestors_disability_66_integer = \
+                partner.ancestors_disability_66_integer
 
             if self.aeat_perception_key_id:
                 self.aeat_perception_subkey_id = False
@@ -511,12 +421,3 @@ class L10nEsAeatMod190ReportLine(models.Model):
         else:
             self.partner_vat = False
             self.codigo_provincia = False
-
-    @api.onchange('aeat_perception_key_id')
-    def onchange_aeat_perception_key_id(self):
-        if self.aeat_perception_key_id:
-            self.aeat_perception_subkey_id = False
-            return {'domain': {'aeat_perception_subkey_id': [
-                ('aeat_perception_key_id', '=', self.aeat_perception_key_id.id)]}}
-        else:
-            return {'domain': {'aeat_perception_subkey_id': []}}
