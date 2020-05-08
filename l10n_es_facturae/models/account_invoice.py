@@ -222,6 +222,20 @@ class AccountInvoice(models.Model):
                                     'invoices that have been validated.'))
         return
 
+    def _get_facturae_invoice_attachments(self):
+        result = []
+        if self.partner_id.attach_invoice_as_annex:
+            action = self.env.ref('account.account_invoices')
+            content, content_type = action.render(self.ids)
+            result.append({
+                'data': base64.b64encode(content),
+                'content_type': content_type,
+                'encoding': 'BASE64',
+                'description': _("Invoice %s") % self.number,
+                'compression': False
+            })
+        return result
+
     def get_facturae(self, firmar_facturae):
 
         def _sign_file(cert, password, request):
