@@ -62,14 +62,16 @@ class AccountInvoiceIntegration(models.Model):
                     ('efact_hub_id', '=', hub_id)
                 ])
                 if not integration:
+                    hub_filename = hub_feedback.find('HubFilename').text
+                    if self._check_filename_attachment(hub_filename):
+                        return
                     integration = self.env[
                         'account.invoice.integration'
                     ].search([
                         ('method_id', '=', self.env.ref(
                             'l10n_es_facturae_efact.integration_efact').id),
                         ('efact_hub_id', '=', False),
-                        ('efact_reference', '=', hub_feedback.find(
-                            'HubFilename').text)
+                        ('efact_reference', '=', hub_filename)
                     ])
                     integration.efact_hub_id = hub_id
                 for feedback in invoice_feedback.findall('Feedback'):
@@ -106,12 +108,14 @@ class AccountInvoiceIntegration(models.Model):
                         'mimetype': 'application/xml'
                     })
             else:
+                hub_filename = hub_feedback.find('HubFilename').text
+                if self._check_filename_attachment(hub_filename):
+                    return
                 integration = self.env['account.invoice.integration'].search([
                     ('method_id', '=', self.env.ref(
                         'l10n_es_facturae_efact.integration_efact').id),
                     ('efact_hub_id', '=', False),
-                    ('efact_reference', '=', hub_feedback.find(
-                        'HubFilename').text)
+                    ('efact_reference', '=', hub_filename)
                 ])
                 integration.efact_hub_id = hub_id
                 self.env['account.invoice.integration.log'].create({
@@ -125,6 +129,10 @@ class AccountInvoiceIntegration(models.Model):
                     'hub_message_id': hub_message_id,
                     'update_date': hub_feedback.find('HubStatusDate').text
                 })
+
+    def _check_filename_attachment(self, hub_filename):
+        # We will not store attachment reception confirmation
+        return len(hub_filename.split('@')) > 3
 
     def send_method(self):
         if self.integration_id.method_id == self.env.ref(
