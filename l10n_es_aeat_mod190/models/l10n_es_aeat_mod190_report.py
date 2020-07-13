@@ -206,7 +206,8 @@ class L10nEsAeatMod190Report(models.Model):
         self.casilla_03 = retenciones
 
     def _get_line_mod190_vals(self, rp, key_id, subkey_id):
-        codigo_provincia = rp.state_id.aeat_code
+        codigo_provincia = self.SPANISH_STATES.get(
+            rp.state_id.code, False)
         if not codigo_provincia:
             exceptions.UserError(
                 _('The state is not defined in the partner, %s') % rp.name)
@@ -455,7 +456,8 @@ class L10nEsAeatMod190ReportLine(models.Model):
             if not partner.state_id:
                 exceptions.UserError(_('Provincia no definida en el cliente'))
 
-            self.codigo_provincia = partner.state_id.aeat_code
+            self.codigo_provincia = self.SPANISH_STATES.get(
+                partner.state_id.code, False)
             if not self.codigo_provincia:
                 self.codigo_provincia = '98'
 
