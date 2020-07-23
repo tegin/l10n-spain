@@ -160,7 +160,7 @@ class TestL10nEsFacturae(common.TransactionCase):
             active_model='account.invoice').create_facturae_file()
         generated_facturae = etree.fromstring(
             base64.b64decode(self.wizard.facturae))
-        fe = 'http://www.facturae.es/Facturae/2014/v3.2.1/Facturae'
+        fe = 'http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml'
         self.assertEqual(
             generated_facturae.xpath(
                 '/fe:Facturae/Parties/SellerParty/TaxIdentification/'

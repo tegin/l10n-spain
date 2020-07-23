@@ -7,7 +7,7 @@
             model="account.invoice"/>
 
     <template id="facturae_header">
-        &lt;fe:Facturae xmlns:fe="http://www.facturae.es/Facturae/2014/v3.2.1/Facturae" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"&gt;
+        &lt;fe:Facturae xmlns:fe="http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"&gt;
         <t t-raw="0"/>
         &lt;/fe:Facturae&gt;
     </template>
@@ -111,7 +111,7 @@
             <t t-set="currency_rate" t-value="currency.rate if currency else 1.0"/>
             <t t-set="euro_rate" t-value="euro.rate if euro else 1.0"/>
             <FileHeader>
-                <SchemaVersion t-esc="'3.2.1'"/>
+                <SchemaVersion t-esc="'3.2.2'"/>
                 <Modality t-esc="'I'"/>
                 <InvoiceIssuerType t-esc="'EM'"/>
                 <Batch>
@@ -175,6 +175,7 @@
                             <CorrectionMethod t-esc="invoice.correction_method"/>
                             <CorrectionMethodDescription t-esc="invoice.get_correction_method_string()"/>
                             <AdditionalReasonDescription t-length="2500" t-esc="invoice.name"/>
+                            <InvoiceIssueDate t-esc="invoice.refund_invoice_id.date_invoice"/>
                         </Corrective>
                     </InvoiceHeader>
                     <InvoiceIssueData>
@@ -193,6 +194,10 @@
                         <TaxCurrencyCode t-esc="'EUR'"/>
                         <!-- Los impuestos siempre deben estar en euros -->
                         <LanguageName t-esc="company.partner_id.lang[:2]"/>
+                        <InvoiceDescription t-length="2500" t-if="invoice.comment" t-esc="invoice.comment"/>
+                        <ReceiverTransactionReference t-length="20" t-if="False"/>
+                        <FileReference t-length="20" t-if="False"/>
+                        <ReceiverContractReference t-length="20" t-if="False"/>
                     </InvoiceIssueData>
                     <TaxesOutputs>
                         <t t-foreach="invoice.tax_line_ids" t-as="tax_line">
@@ -249,6 +254,10 @@
                         <AmountsWithheld t-if="False"/>
                         <TotalExecutableAmount t-esc="'%.8f' % invoice.amount_total"/>
                         <TotalReimbursableExpenses t-if="False"/>
+                        <PaymentInKind t-if="False">
+                            <PaymentInKindReason t-length="2500"/>
+                            <PaymentInKindAmount/>
+                        </PaymentInKind>
                     </InvoiceTotals>
                     <Items>
                         <InvoiceLine t-foreach="invoice.invoice_line_ids.filtered(lambda r: not r.display_type)" t-as="line">
