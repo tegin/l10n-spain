@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.facturae.es/Facturae/2014/v3.2.1/Facturae" targetNamespace="http://www.facturae.es/Facturae/2014/v3.2.1/Facturae" version="3.2.1">
-	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd"/>
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
 	<xs:element name="Facturae">
 		<xs:annotation>
 			<xs:documentation xml:lang="en"> Element ORIGIN of Facturae Invoices File.</xs:documentation>
@@ -53,8 +53,8 @@
 			</xs:element>
 			<xs:element name="Modality" type="ModalityType">
 				<xs:annotation>
-					<xs:documentation xml:lang="en"> Single or Batch. If it is "single" (I) the amounts of the fields of group Batch will match their corresponding fields of group InvoiceTotals and field InvoicesCount will always take the value "1". If it is a "batch" (L), the value of field InvoicesCount will always be &gt; "1".        </xs:documentation>
-					<xs:documentation xml:lang="es"> Modalidad. Individual o Lote. Si es "individual" (I) los importes de los campos del grupo Batch coincidirán con sus correspondientes campos del grupo InvoiceTotals y el campo InvoicesCount tendrá siempre el valor "1". Si es "lote" (L), el valor del campo InvoicesCount será siempre &gt; "1".</xs:documentation>
+					<xs:documentation xml:lang="en"> Single or Batch. If it is "single" (I) the amounts of the fields of group Batch will match their corresponding fields of group InvoiceTotals and field InvoicesCount will always take the value "1". If it is a "batch" (L), the value of field InvoicesCount will always be > "1".        </xs:documentation>
+					<xs:documentation xml:lang="es"> Modalidad. Individual o Lote. Si es "individual" (I) los importes de los campos del grupo Batch coincidirán con sus correspondientes campos del grupo InvoiceTotals y el campo InvoicesCount tendrá siempre el valor "1". Si es "lote" (L), el valor del campo InvoicesCount será siempre > "1".</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="InvoiceIssuerType" type="InvoiceIssuerTypeType">

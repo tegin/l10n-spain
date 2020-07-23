@@ -160,7 +160,7 @@ class TestL10nEsFacturae(common.TransactionCase):
             active_model='account.invoice').create_facturae_file()
         generated_facturae = etree.fromstring(
             base64.b64decode(self.wizard.facturae))
-        fe = 'http://www.facturae.es/Facturae/2009/v3.2/Facturae'
+        fe = 'http://www.facturae.es/Facturae/2014/v3.2.1/Facturae'
         self.assertEqual(
             generated_facturae.xpath(
                 '/fe:Facturae/Parties/SellerParty/TaxIdentification/'
@@ -436,7 +436,8 @@ class TestL10nEsFacturae(common.TransactionCase):
         # Make sure the decimal precision is being applied
         self.assertAlmostEqual(self.invoice_line.price_unit, 190.314, 4)
         self.invoice.compute_taxes()
-        self._check_amounts('190.310000', '190.310000', '190.31', '39.97')
+        self._check_amounts(
+            '190.31000000', '190.31000000', '190.31000000', '39.96594000')
 
     def test_invoice_rounding_with_discount(self):
         self.main_company.tax_calculation_rounding_method = 'round_globally'
@@ -450,5 +451,5 @@ class TestL10nEsFacturae(common.TransactionCase):
         })
         self.invoice.compute_taxes()
         self._check_amounts(
-            '190.310000', '133.220000', '133.22', '27.98', '57.090000',
+            '190.31000000', '133.22000000', '133.22000000', '27.97615800'
         )

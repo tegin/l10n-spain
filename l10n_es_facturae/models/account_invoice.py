@@ -453,7 +453,7 @@ class AccountInvoice(models.Model):
         return invoice_file, file_name
 
     def _get_facturae_schema_file(self):
-        return tools.file_open("Facturaev3_2.xsd",
+        return tools.file_open("Facturaev3_2_1.xsd",
                                subdir="addons/l10n_es_facturae/data")
 
     def _validate_facturae(self, xml_string):
