@@ -11,6 +11,7 @@
                 <field name="facturae" />
             </field>
             <page name="sales_purchases" position="after">
+                <field name="facturae" invisible="1" />
                 <page
                     string='FACe'
                     name="facturae"
@@ -19,7 +20,7 @@
                     <group>
                         <field name="facturae_version" />
                         <field
-                            name="invoice_integration_method_ids"
+                            name="move_integration_method_ids"
                             widget="many2many_checkboxes"
                         />
                         <field
