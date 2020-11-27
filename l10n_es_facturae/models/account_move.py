@@ -74,16 +74,6 @@ class AccountMove(models.Model):
             ),
         ]
     )
-
-    integration_ids = fields.One2many(
-        comodel_name="account.move.integration", inverse_name="move_id", copy=False,
-    )
-    integration_issue = fields.Boolean(
-        compute="_compute_integration_issue",
-        store=True,
-        help="This field should show if the invoice has been integrated and "
-        "has any issues",
-    )
     facturae_start_date = fields.Date(
         readonly=True, states={"draft": [("readonly", False)]},
     )
@@ -107,29 +97,6 @@ class AccountMove(models.Model):
             ):
                 raise ValidationError(_("Start date cannot be later than end date"))
 
-    @api.depends("integration_ids")
-    def _compute_integrations_count(self):
-        for inv in self:
-            inv.integration_count = len(inv.integration_ids)
-
-    integration_count = fields.Integer(
-        compute="_compute_integrations_count",
-        string="# of Integrations",
-        copy=False,
-        default=0,
-    )
-
-    @api.depends("integration_ids", "partner_id")
-    def _compute_can_integrate(self):
-        for mv in self:
-            can_integrate = False
-            if mv.partner_id:
-                for method in mv.partner_id.move_integration_method_ids:
-                    if not mv.integration_ids.filtered(lambda r: r.method_id == method):
-                        can_integrate = True
-                        break
-            mv.can_integrate = can_integrate
-
     @api.depends("partner_id.facturae", "type")
     def _compute_facturae(self):
         for record in self:
@@ -137,57 +104,6 @@ class AccountMove(models.Model):
                 "out_invoice",
                 "out_refund",
             ]
-
-    can_integrate = fields.Boolean(compute="_compute_can_integrate")
-
-    def _integration_issue_fields(self):
-        return (
-            "integration_ids",
-            "integration_ids.state",
-            "integration_ids.method_id",
-            "integration_ids.integration_status",
-        )
-
-    @api.depends(lambda r: r._integration_issue_fields())
-    def _compute_integration_issue(self):
-        for record in self:
-            integration_issue = False
-            for integration in record.integration_ids:
-                if integration._check_integration_issue():
-                    integration_issue = True
-                    break
-            record.integration_issue = integration_issue
-
-    def action_integrations(self):
-        self.ensure_one()
-        ctx = self.env.context.copy()
-        ctx.pop("default_type", False)
-        # We need to remove default type of the context because we should need
-        # to create attachments and type is a defined field there
-        slf = self.with_context(ctx)
-        for method in slf.partner_id.move_integration_method_ids:
-            if not slf.env["account.move.integration"].search(
-                [("move_id", "=", slf.id), ("method_id", "=", method.id)]
-            ):
-                method.create_integration(slf)
-        return slf.action_view_integrations()
-
-    def action_view_integrations(self):
-        self.ensure_one()
-        action = self.env.ref("l10n_es_facturae.move_integration_action")
-        result = action.read()[0]
-        result["context"] = {"default_move_id": self.id}
-        integrations = self.env["account.move.integration"].search(
-            [("move_id", "=", self.id)]
-        )
-
-        if len(integrations) != 1:
-            result["domain"] = "[('id', 'in', " + str(integrations.ids) + ")]"
-        elif len(integrations) == 1:
-            res = self.env.ref("account.move.integration.form", False)
-            result["views"] = [(res and res.id or False, "form")]
-            result["res_id"] = integrations.id
-        return result
 
     def get_exchange_rate(self, euro_rate, currency_rate):
         if not euro_rate and not currency_rate:
