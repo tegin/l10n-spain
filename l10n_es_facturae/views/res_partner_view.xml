@@ -20,10 +20,6 @@
                     <group>
                         <field name="facturae_version" />
                         <field
-                            name="move_integration_method_ids"
-                            widget="many2many_checkboxes"
-                        />
-                        <field
                             name="organo_gestor"
                             attrs="{'required': [('facturae', '=', True)]}"
                         />
