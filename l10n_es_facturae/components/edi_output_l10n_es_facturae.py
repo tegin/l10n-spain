@@ -5,12 +5,10 @@
 from odoo.addons.component.core import Component
 
 
-class EDIBackendOutputComponentMixin(Component):
-    _name = "edi.output.l10n_es_facturae"
-    # TODO: Change inheritance
-    # _inherit = "edi.component.output.mixin"
+class EdiOutputL10nEsFacturae(Component):
+    _name = "edi.output.generate.l10n_es_facturae"
+    _inherit = "edi.component.output.mixin"
+    _usage = "edi.output.generate.l10n_es_facturae"
 
-    def generate(self, exchange_record):
-        # TODO: When changing the inheratance, remove from function and do:
-        # exchange_record = self.exchange_record
-        return exchange_record.record.get_facturae()[0]
+    def generate(self):
+        return self.exchange_record.record.get_facturae(True)[0]

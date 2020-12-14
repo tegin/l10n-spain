@@ -39,6 +39,7 @@
         "wizard/create_facturae_view.xml",
         "wizard/account_move_reversal_view.xml",
         "views/account_move_view.xml",
+        "views/edi_exchange_record.xml",
     ],
     "external_dependencies": {"python": ["OpenSSL", "xmlsig"]},
     "installable": True,
