@@ -434,6 +434,7 @@ class AccountInvoice(models.Model):
             ctx = xmlsig.SignatureContext()
             key = crypto.load_pkcs12(base64.b64decode(cert), password)
             ctx.x509 = key.get_certificate().to_cryptography()
+            ctx.ca_certificates = [ca.to_cryptography() for ca in key.get_ca_certificates()]
             ctx.public_key = ctx.x509.public_key()
             ctx.private_key = key.get_privatekey().to_cryptography_key()
             root.append(sign)
